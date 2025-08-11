@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Power BI Dashboard Rotator</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #000;
+      font-family: Arial, sans-serif;
+    }
+    iframe {
+      width: 100vw;
+      height: 100vh;
+      border: none;
+    }
+    #title {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  color: white;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 8px; 
+  font-size: 20px;
+  z-index: 8;
+}
+  
+    #loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 15px 30px;
+      font-size: 18px;
+      z-index: 10;
+      display: none;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="title">Loading Dashboard...</div>
+<div id="loading">Loading next dashboard...</div>
+<iframe id="reportFrame" src=""></iframe>
+
+<script>
+  const reportUrls = [
+    "https://app.powerbi.com/reportEmbed?reportId=f8dc7eae-bdf7-4717-a510-1789684793ad&autoAuth=true&ctid=805a6913-d532-46d5-825a-c983de7a8dd2",
+    "https://app.powerbi.com/reportEmbed?reportId=6556e82e-231d-4ec0-a8df-b73d82f6aa97&autoAuth=true&ctid=805a6913-d532-46d5-825a-c983de7a8dd2",
+    "https://app.powerbi.com/reportEmbed?reportId=439dfce3-8c51-439c-a7ba-6bcaf7bd539b&autoAuth=true&ctid=805a6913-d532-46d5-825a-c983de7a8dd2"
+  ];
+
+  const reportTitles = [
+    "OEE Dashboard",
+    "Production Downtime Dashboard",
+    "Production Speed Dashboard"
+  ];
+
+  let index = 0;
+  const interval = 60000; // 60 seconds
+
+  function rotateReports() {
+    const frame = document.getElementById("reportFrame");
+    const title = document.getElementById("title");
+    const loading = document.getElementById("loading");
+
+    loading.style.display = "block";
+
+    // Delay to show loading message before iframe loads
+    setTimeout(() => {
+      frame.src = reportUrls[index];
+      title.textContent = reportTitles[index];
+      loading.style.display = "none";
+      index = (index + 1) % reportUrls.length;
+    }, 1000);
+  }
+
+  // Initial load
+  rotateReports();
+  setInterval(rotateReports, interval);
+
+  // Auto-refresh page every 20 minutes
+  setTimeout(() => {
+    location.reload();
+  }, 20 * 60 * 1000);
+
+  // Keyboard navigation: left/right arrows
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowRight") {
+      rotateReports(); // Next dashboard
+    } else if (event.key === "ArrowLeft") {
+      index = (index - 2 + reportUrls.length) % reportUrls.length;
+      rotateReports(); // Previous dashboard
+    }
+  });
+
+  // Attempt fullscreen mode
+  document.addEventListener("click", () => {
+    if (document.fullscreenEnabled && !document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  }, { once: true });
+</script>
+
+</body>
+</html>
